@@ -1,0 +1,62 @@
+<?php
+  $classes = '';
+  if ($this->openUrlEmbed) {
+    $classes = 'fulltext';
+  } elseif ($this->openUrlWindow) {
+    $classes = 'fulltext openUrlWindow window_settings:'
+      . $this->escapeHtmlAttr($this->openUrlWindow);
+  }
+  $class = $classes ? ' class="' . $classes . '"' : '';
+  $classIb = $classes ? ' class="imagebased ' . $classes . '"' : '';
+  $linkUrl = $this->moreOptionsUrl ?: $this->resolverUrl;
+  $loggedIn = null !== $this->auth()->getUserObject();
+?>
+
+<span class="openUrlControls<?php if ($loggedIn && $this->openUrlEmbed): ?> openUrlEmbed<?php if ($this->openUrlEmbedAutoLoad): ?> openUrlEmbedAutoLoad<?php endif; ?><?php endif; ?>">
+  <?php if (!$loggedIn): ?>
+    <a
+      class="btn btn-primary icon-link"
+      href="<?=$this->url('myresearch-userlogin')?>"
+      data-lightbox
+    >
+      <?=$this->icon('sign-in', 'icon-link__icon')?>
+      <span class="icon-link__label"><?=$this->transEsc('Request')?></span>
+    </a>
+  <?php else: ?>
+    <?php if (!$this->openUrlImageBasedSrc || $this->openUrlImageBasedMode === 'both'): ?>
+      <a href="<?=$this->escapeHtmlAttr($linkUrl)?>"<?=$class?> data-search-class-id="<?=$this->escapeHtmlAttr($this->searchClassId)?>">
+        <span title="<?=$this->escapeHtmlAttr($this->openUrl)?>" class="openUrl"></span>
+        <?php if ($this->openUrlGraphic): ?>
+          <?php
+            $style = '';
+            if ($this->openUrlGraphicWidth) {
+              $style .= 'width:' . $this->escapeHtmlAttr($this->openUrlGraphicWidth) . 'px;';
+            }
+            if ($this->openUrlGraphicHeight) {
+              $style .= 'height:' . $this->escapeHtmlAttr($this->openUrlGraphicHeight) . 'px;';
+            }
+          ?>
+          <img src="<?=$this->escapeHtmlAttr($this->openUrlGraphic)?>" alt="<?=$this->transEscAttr('Request')?>" style="<?=$style?>">
+        <?php else: ?>
+          <span class="btn btn-primary"><?=$this->transEsc('Request')?></span>
+        <?php endif; ?>
+      </a>
+    <?php endif; ?>
+
+    <?php if ($this->openUrlImageBasedSrc): ?>
+      <?php $ibOpenUrl = $this->openUrlImageBasedOverride ?: $this->openUrl; ?>
+      <a href="<?=$this->escapeHtmlAttr($this->openUrlBase . '?' . $ibOpenUrl)?>"<?=$classIb?>>
+        <span title="<?=$this->escapeHtmlAttr($ibOpenUrl)?>" class="openUrl"></span>
+        <img
+          data-recordid="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>"
+          src="<?=$this->escapeHtmlAttr($this->openUrlImageBasedSrc)?>"
+          alt="<?=$this->transEscAttr('Request')?>"
+        >
+      </a>
+    <?php endif; ?>
+  <?php endif; ?>
+</span>
+
+<?php if ($loggedIn && $this->openUrlEmbed): ?>
+  <div class="resolver hidden"><?=$this->transEsc('loading_ellipsis')?></div>
+<?php endif; ?>

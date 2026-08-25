@@ -1,0 +1,12 @@
+<?php
+  $this->headTitle($this->translate('System Unavailable'));
+  $this->layout()->searchbox = false;
+  $this->breadcrumbs()->add($this->translate('System Unavailable'), active: true);
+?>
+<div class="alert alert-warning">
+  <h2><?=$this->transEsc('ReShare Unavailable')?></h2>
+  <p>
+    <?=$this->transEsc('The system is currently unavailable due to system maintenance')?>.
+    <?=$this->transEsc('Please check back soon')?>.
+  </p>
+</div>

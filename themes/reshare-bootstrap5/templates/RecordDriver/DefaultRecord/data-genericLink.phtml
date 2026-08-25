@@ -1,0 +1,17 @@
+<?php foreach ($data as $field): ?>
+  <?php if (!empty($field['text'])): ?>
+    <?=$this->escapeHtml($field['text'])?>
+  <?php endif; ?>
+  <?php if (!empty($field['url'])): ?>
+    <?php
+      $scheme = strtolower((string)parse_url($field['url'], PHP_URL_SCHEME));
+      $linkIsSafe = filter_var($field['url'], FILTER_VALIDATE_URL)
+        && in_array($scheme, ['http', 'https'], true);
+    ?>
+    <?php if ($linkIsSafe): ?>
+      <a href="<?=$this->escapeHtmlAttr($field['url'])?>"><?=$this->escapeHtml($field['url'])?></a>
+    <?php else: ?>
+      <?=$this->escapeHtml($field['url'])?>
+    <?php endif; ?>
+  <?php endif; ?>
+<?php endforeach; ?>

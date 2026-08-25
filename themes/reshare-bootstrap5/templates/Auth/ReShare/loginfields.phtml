@@ -1,0 +1,55 @@
+<?php
+  $config = $this->config()->get('ReShare');
+  $members = isset($config->members) ? $config->members->toArray() : [];
+  $selectedInstitution = (string)$this->request->get('institution', '');
+?>
+<div class="form-group mb-3">
+  <label class="form-label" for="login_<?=$this->escapeHtmlAttr($topClass)?>_institution">
+    <?=$this->transEsc('Select Institution')?>
+  </label>
+  <select
+    id="login_<?=$this->escapeHtmlAttr($topClass)?>_institution"
+    name="institution"
+    class="form-select"
+    required
+  >
+    <option value="" disabled<?=$selectedInstitution === '' ? ' selected' : ''?>>
+      <?=$this->transEsc('Select Library')?>
+    </option>
+    <?php foreach ($members as $code => $name): ?>
+      <option
+        value="<?=$this->escapeHtmlAttr($code)?>"
+        <?=$selectedInstitution === (string)$code ? 'selected' : ''?>
+      ><?=$this->escapeHtml($name)?></option>
+    <?php endforeach; ?>
+  </select>
+</div>
+
+<div class="form-group mb-3">
+  <label class="form-label" for="login_<?=$this->escapeHtmlAttr($topClass)?>_username">
+    <?=$this->transEsc('Library Barcode')?>
+  </label>
+  <input
+    type="text"
+    name="username"
+    id="login_<?=$this->escapeHtmlAttr($topClass)?>_username"
+    value="<?=$this->escapeHtmlAttr($this->request->get('username'))?>"
+    class="form-control"
+    autocomplete="username"
+    required
+  >
+</div>
+
+<div class="form-group mb-3">
+  <label class="form-label" for="login_<?=$this->escapeHtmlAttr($topClass)?>_password">
+    <?=$this->transEsc('PIN/Password')?>
+  </label>
+  <input
+    type="password"
+    name="password"
+    id="login_<?=$this->escapeHtmlAttr($topClass)?>_password"
+    class="form-control"
+    autocomplete="current-password"
+    required
+  >
+</div>

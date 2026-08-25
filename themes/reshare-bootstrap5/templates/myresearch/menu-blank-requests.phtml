@@ -1,0 +1,38 @@
+<?php
+  $config = $this->config()->get('ReShare');
+  $settings = $config->BlankRequests ?? null;
+  $user = $this->auth()->getUserObject();
+  $enabled = $settings && ($settings->enabled ?? false);
+  $baseUrl = $settings ? rtrim((string)($settings->base_url ?? ''), '/') : '';
+  $baseUrlScheme = strtolower((string)parse_url($baseUrl, PHP_URL_SCHEME));
+  $baseUrlIsSafe = filter_var($baseUrl, FILTER_VALIDATE_URL)
+    && in_array($baseUrlScheme, ['http', 'https'], true);
+  if (!$enabled || !$baseUrlIsSafe || !$user || !$user->getCollege()) {
+    return;
+  }
+
+  $buildUrl = function (string $serviceId) use ($baseUrl, $settings, $user): string {
+    $query = [
+      'svc_id' => $serviceId,
+      'req_id' => $user->getUsername(),
+    ];
+    if ($referrerId = (string)($settings->referrer_id ?? '')) {
+      $query['rfr_id'] = $referrerId;
+    }
+    return $baseUrl . '/' . rawurlencode($user->getCollege()) . '?'
+      . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+  };
+
+  $links = [
+    (string)($settings->loan_service_id ?? 'loan') => 'Request physical materials (loan)',
+    (string)($settings->copy_service_id ?? 'copy') => 'Request articles and book chapters (copy)',
+  ];
+?>
+<?php foreach ($links as $serviceId => $label): ?>
+  <li>
+    <a class="icon-link" href="<?=$this->escapeHtmlAttr($buildUrl($serviceId))?>" target="_blank" rel="noopener">
+      <?=$this->icon('ui-add', 'icon-link__icon')?>
+      <span class="icon-link__label"><?=$this->transEsc($label)?></span>
+    </a>
+  </li>
+<?php endforeach; ?>

@@ -1,0 +1,35 @@
+<?php
+  $config = $this->config()->get('ReShare');
+  $settings = $config->BlankRequests ?? null;
+  $enabled = $settings && ($settings->enabled ?? false);
+  $baseUrl = $settings ? rtrim((string)($settings->base_url ?? ''), '/') : '';
+  $baseUrlScheme = strtolower((string)parse_url($baseUrl, PHP_URL_SCHEME));
+  $baseUrlIsSafe = filter_var($baseUrl, FILTER_VALIDATE_URL)
+    && in_array($baseUrlScheme, ['http', 'https'], true);
+  if (!$enabled || !$baseUrlIsSafe) {
+    return;
+  }
+  $user = $this->auth()->getUserObject();
+?>
+<?php if ($user && $user->getCollege()): ?>
+  <?php
+    $query = ['req_id' => $user->getUsername()];
+    if ($referrerId = (string)($settings->referrer_id ?? '')) {
+      $query['rfr_id'] = $referrerId;
+    }
+    $url = $baseUrl . '/' . rawurlencode($user->getCollege()) . '?'
+      . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+  ?>
+  <p>
+    <?=$this->transEsc('If you still cannot find what you are looking for, submit a')?>
+    <a href="<?=$this->escapeHtmlAttr($url)?>" target="_blank" rel="noopener">
+      <?=$this->transEsc('blank request form')?>
+    </a>.
+  </p>
+<?php elseif (!$user): ?>
+  <p>
+    <a href="<?=$this->url('myresearch-userlogin')?>" data-lightbox>
+      <?=$this->transEsc('Log in to fill out a blank request form')?>
+    </a>
+  </p>
+<?php endif; ?>

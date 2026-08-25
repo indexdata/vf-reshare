@@ -1,0 +1,68 @@
+<h2>
+  <?php
+    $ilsDetails = $driver->getExtraDetail('ils_details');
+    if (is_a($driver, \VuFind\RecordDriver\SolrDefault::class) && !is_a($driver, \VuFind\RecordDriver\Missing::class)) {
+      $title = $driver->getTitle();
+      $title = empty($title) ? $this->transEsc('Title not available') : $this->escapeHtml($title);
+      echo '<a href="' . $this->escapeHtmlAttr($this->recordLinker()->getUrl($driver))
+        . '" class="title">' . $title . '</a>';
+    } elseif (!empty($ilsDetails['title'])) {
+      echo '<span class="title">' . $this->escapeHtml($ilsDetails['title']) . '</span>';
+    } else {
+      echo $this->transEsc('Title not available');
+    }
+    $listAuthors = $driver->getPrimaryAuthors();
+  ?>
+  <?php if (!empty($listAuthors)): ?>
+    <span class="authors">
+      <?=$this->transEsc('by')?>:
+      <a href="<?=$this->record($driver)->getLink('author', $listAuthors[0])?>"><?=$this->escapeHtml($listAuthors[0])?></a><?php if (count($listAuthors) > 1): ?>, <?=$this->transEsc('more_authors_abbrev')?><?php endif; ?><br>
+    </span>
+  <?php endif; ?>
+</h2>
+<?php if (count($driver->getFormats()) > 0): ?>
+  <?=$this->record($driver)->getFormatList()?>
+  <br>
+<?php endif; ?>
+<?php if (!empty($ilsDetails['volume'])): ?>
+  <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>
+  <br>
+<?php endif; ?>
+<?php if (!empty($ilsDetails['publication_year'])): ?>
+  <strong><?=$this->transEsc('Year of Publication')?>:</strong> <?=$this->escapeHtml($ilsDetails['publication_year'])?>
+  <br>
+<?php endif; ?>
+<?php if (!empty($ilsDetails['status'] ?? $ilsDetails['stage'] ?? '')): ?>
+  <strong><?=$this->transEsc('Request Status')?>:</strong>
+  <?=$this->escapeHtml($ilsDetails['status'] ?? $ilsDetails['stage'])?>
+  <br>
+<?php endif; ?>
+<?php if (!empty($ilsDetails['hrid'])): ?>
+  <strong><?=$this->transEsc('Request ID')?>:</strong> <?=$this->escapeHtml($ilsDetails['hrid'])?>
+  <br>
+<?php endif; ?>
+<?php if (!empty($ilsDetails['cdl_url'])): ?>
+  <?php
+    [$documentUrl, $documentDetails] = array_pad(
+      explode(' Password:', $ilsDetails['cdl_url'], 2),
+      2,
+      null
+    );
+    $documentScheme = strtolower((string)parse_url($documentUrl, PHP_URL_SCHEME));
+    $linkIsSafe = filter_var($documentUrl, FILTER_VALIDATE_URL)
+      && in_array($documentScheme, ['http', 'https'], true);
+  ?>
+  <strong><?=$this->transEsc('Retrieve Digital Item')?>:</strong>
+  <?php if ($linkIsSafe): ?>
+    <a href="<?=$this->escapeHtmlAttr($documentUrl)?>" target="_blank" rel="noopener">
+      <?=$this->escapeHtml($documentUrl)?>
+    </a>
+  <?php else: ?>
+    <?=$this->escapeHtml($documentUrl)?>
+  <?php endif; ?>
+  <?php if ($documentDetails !== null): ?>
+    <br>
+    <strong><?=$this->transEsc('Password')?>:</strong> <?=$this->escapeHtml($documentDetails)?>
+  <?php endif; ?>
+  <br>
+<?php endif; ?>
