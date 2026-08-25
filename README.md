@@ -32,5 +32,32 @@ Blank-request links are disabled by default. To enable them, configure
 adds loan and copy links to the account menu and a generic blank-request link to
 the no-results page. Patron identifiers are URL encoded before being sent.
 
+### Harvest config for Reservoir
+ReShare typically uses [Reservoir](https://github.com/indexdata/reservoir) for shared holdings. 
+The following settings are recommened for using VuFind's harvest worklflow to populate the index:
+
+Use this configuration in `VUFIND_LOCAL_DIR/harvest/oai.ini` to configure a harvest from reservoir
+```
+[reshare]
+url = "https://<OKAPI_HOSTNAME>/_/invoke/tenant/<RESERVOIR_TENANT_ID>/reservoir/oai?limit=2000"
+metadataPrefix = marcxml
+combineRecords = true
+combineRecordsTag = <collection>
+```
+
+A typical Solrmarc import map (marc_local.properties) may look like this:
+
+```
+id = 999i, first
+collection = "ReShare"
+institution = 999s
+building = 999s
+
+lending_status = 999p
+
+first_indexed = custom, getFirstIndexed(001)
+last_indexed = custom, getLastIndexed(001)
+```
+
 ### Patron API
 TODO
